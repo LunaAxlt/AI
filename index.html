@@ -28,6 +28,50 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+
+        /* Технический перерыв — оверлей */
+        .tech-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .tech-card {
+            background: #1c1c1e;
+            border-radius: 32px;
+            padding: 32px 24px;
+            max-width: 280px;
+            border: 1px solid #a88bff;
+        }
+
+        .tech-card h2 {
+            color: #a88bff;
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .tech-card p {
+            color: #8e8e93;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .tech-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
         }
 
         .status-bar {
@@ -260,23 +304,27 @@
             color: #a88bff;
             text-decoration: none;
         }
-        
-        .thinking {
-            font-style: italic;
-            color: #a88bff;
-        }
     </style>
 </head>
 <body>
-<div class="app">
+<div class="app" id="app">
+    <!-- Технический перерыв (оверлей) -->
+    <div id="techOverlay" style="display: none;" class="tech-overlay">
+        <div class="tech-card">
+            <div class="tech-icon">🔧</div>
+            <h2>Технический перерыв</h2>
+            <p>LunaAxlt AI временно недоступен. Ведутся технические работы. Пожалуйста, зайдите позже.</p>
+        </div>
+    </div>
+
     <div class="status-bar">
         <span>LunaAxlt AI</span>
         <span>🔊</span>
     </div>
 
     <div class="header">
-        <h1>LunaAxlt AI<br><span style="font-size: 0.8rem;">0.1 beta</span></h1>
-        <p>ИИ ассистент • отвечает голосом и текстом • ищет в интернете</p>
+        <h1>LunaAxlt AI<br><span style="font-size: 0.8rem;">0.2 beta</span></h1>
+        <p>ИИ ассистент • отвечает голосом и текстом</p>
     </div>
 
     <div class="avatar-section">
@@ -289,18 +337,14 @@
     </div>
     <div class="ai-name">
         <h2>LunaAxlt AI</h2>
-        <p>пишет тексты • считает • ищет в интернете</p>
+        <p>умный ассистент • пишет тексты • считает • отвечает на вопросы</p>
     </div>
 
     <div class="content">
         <div class="chat-container" id="chatContainer">
             <div class="message ai">
                 <div class="message-bubble">
-                    Привет! Я LunaAxlt AI 0.1 beta. Я умею:<br>
-                    • Считать любые примеры (25*4, 100+50, 2^8)<br>
-                    • Писать тексты и рассказы<br>
-                    • Искать ответы в интернете<br>
-                    Спрашивай!
+                    Привет! Я LunaAxlt AI. Я умею отвечать на вопросы, писать тексты и считать. Спрашивай!
                 </div>
                 <div class="message-time">сейчас</div>
             </div>
@@ -325,10 +369,15 @@
 
 <script>
     // ============================================================
-    // LUNAAXLT AI — С КАЛЬКУЛЯТОРОМ И ПОИСКОМ В ИНТЕРНЕТЕ
+    // 🔧 ТЕХНИЧЕСКИЙ ПЕРЕРЫВ — МЕНЯЙ ТОЛЬКО ЗДЕСЬ 🔧
+    // 0 = РАБОТАЕТ | 1 = ТЕХНИЧЕСКИЙ ПЕРЕРЫВ
+    // ============================================================
+    let TECH_BREAK_ACTIVE = 0;   // ← поменяй на 1 чтобы включить техперерыв
+    
+    // ============================================================
+    // ОСТАЛЬНОЙ КОД (не трогать)
     // ============================================================
     
-    // Элементы
     const textInput = document.getElementById('textInput');
     const sendBtn = document.getElementById('sendBtn');
     const micBtn = document.getElementById('micBtn');
@@ -337,16 +386,21 @@
     const avatarImage = document.getElementById('avatarImage');
     const avatarPlaceholder = document.getElementById('avatarPlaceholder');
     const photoInput = document.getElementById('photoInput');
+    const techOverlay = document.getElementById('techOverlay');
     
     let isRecording = false;
     let recognition = null;
-    let currentUtterance = null;
     
-    // ========== ФОТО ==========
-    avatarCircle.addEventListener('click', () => {
-        photoInput.click();
-    });
+    // Проверка техперерыва при загрузке
+    if (TECH_BREAK_ACTIVE === 1) {
+        techOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    } else {
+        techOverlay.style.display = 'none';
+    }
     
+    // Фото
+    avatarCircle.addEventListener('click', () => photoInput.click());
     photoInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -360,7 +414,6 @@
             reader.readAsDataURL(file);
         }
     });
-    
     const savedAvatar = localStorage.getItem('userAvatar');
     if (savedAvatar) {
         avatarImage.src = savedAvatar;
@@ -368,219 +421,148 @@
         avatarPlaceholder.style.display = 'none';
     }
     
-    // ========== ОЗВУЧКА ==========
+    // Озвучка
     function speakResponse(text) {
+        if (TECH_BREAK_ACTIVE === 1) return;
         if (!window.speechSynthesis) return;
-        
         window.speechSynthesis.cancel();
-        
-        let cleanText = text.replace(/[🔮📊💻🤔✨🌙😊🎙️💬📝✅❌⚠️]/g, '');
-        cleanText = cleanText.replace(/[*`_#]/g, '');
-        
+        let cleanText = text.replace(/[🔮📊💻🤔✨🌙😊🎙️💬📝✅❌⚠️🔢🌐🔍]/g, '');
         const utterance = new SpeechSynthesisUtterance(cleanText);
         utterance.rate = 1.0;
         utterance.lang = 'ru-RU';
-        
         window.speechSynthesis.speak(utterance);
     }
     
-    // ========== ДОБАВЛЕНИЕ СООБЩЕНИЯ ==========
     function addMessage(text, isUser) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
-        
         const bubble = document.createElement('div');
         bubble.className = 'message-bubble';
         bubble.textContent = text;
-        
         const time = document.createElement('div');
         time.className = 'message-time';
-        const now = new Date();
-        time.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
+        time.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         messageDiv.appendChild(bubble);
         messageDiv.appendChild(time);
         chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
     
-    // ========== КАЛЬКУЛЯТОР (УМЕЕТ ВСЁ СЧИТАТЬ) ==========
+    // ========== КАЛЬКУЛЯТОР ==========
     function calculateMath(question) {
-        // Убираем все пробелы
         let expr = question.replace(/\s/g, '');
-        
-        // Поддерживаемые операции
-        const mathPattern = /[\d\+\-\*\/\(\)\^\%\.]+/;
-        
-        // Ищем математическое выражение
         let mathExpr = expr.match(/[\d\+\-\*\/\(\)\^\%\.]+/);
-        
         if (mathExpr) {
             let expression = mathExpr[0];
-            
-            // Заменяем ^ на ** (степень)
             expression = expression.replace(/\^/g, '**');
-            
-            // Проверяем, что выражение содержит цифры и операции
             if (/[\d+\-*/()]/.test(expression)) {
                 try {
-                    // Безопасное вычисление
                     const result = Function('"use strict"; return (' + expression + ')')();
-                    
                     if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
-                        // Округляем до 4 знаков
-                        const rounded = Math.round(result * 10000) / 10000;
-                        return `🧮 Результат: ${rounded}`;
+                        return `Результат: ${Math.round(result * 10000) / 10000}`;
                     }
-                } catch(e) {
-                    return null;
-                }
+                } catch(e) {}
             }
         }
-        return null;
-    }
-    
-    // ========== ПОИСК В ИНТЕРНЕТЕ (через Wikipedia API) ==========
-    async function searchInternet(query) {
-        try {
-            // Используем Wikipedia API для поиска
-            const searchQuery = encodeURIComponent(query);
-            const url = `https://ru.wikipedia.org/api/rest_v1/page/summary/${searchQuery}`;
-            
-            const response = await fetch(url);
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.extract) {
-                    return data.extract.substring(0, 500) + (data.extract.length > 500 ? '...' : '');
-                } else if (data.description) {
-                    return data.description;
-                }
-            }
-            
-            // Если не нашли в Wikipedia, пробуем через поисковый запрос
-            return null;
-            
-        } catch(e) {
-            console.log('Ошибка поиска:', e);
-            return null;
-        }
-    }
-    
-    // ========== ОБЫЧНЫЙ ПОИСК (если Wikipedia не помог) ==========
-    async function searchGeneral(query) {
-        try {
-            // Пробуем через DuckDuckGo API (бесплатный)
-            const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
-            if (response.ok) {
-                const data = await response.json();
-                if (data.AbstractText) {
-                    return data.AbstractText;
-                }
-            }
-        } catch(e) {}
         return null;
     }
     
     // ========== ТЕКСТЫ И РАССКАЗЫ ==========
     function writeText(question) {
         const q = question.toLowerCase();
-        
-        if (q.includes('о природе') || q.includes('природа')) {
-            return 'Солнце мягко освещало лесную поляну. Листья тихо шептались на ветру, а где-то вдалеке слышалось пение птиц. Природа жила своей удивительной жизнью, наполненной гармонией и спокойствием. Воздух был свежим и чистым, а небо ярко-голубым.';
+        if (q.includes('напиши текст') || q.includes('напиши рассказ') || q.includes('напиши сочинение')) {
+            if (q.includes('о природе')) return 'Солнце мягко освещало лесную поляну. Листья тихо шептались на ветру, а где-то вдалеке слышалось пение птиц. Природа жила своей удивительной жизнью, наполненной гармонией и спокойствием.';
+            if (q.includes('о дружбе')) return 'Настоящая дружба — это когда ты знаешь, что есть человек, который всегда поддержит. Друг не бросит в трудную минуту, разделит радость и грусть. Друзья делают нашу жизнь ярче.';
+            if (q.includes('о любви')) return 'Любовь — это самое светлое чувство. Она вдохновляет на подвиги, дарит силы и делает нас лучше. Когда человек любит, мир вокруг становится ярче.';
+            if (q.includes('о космосе')) return 'Бескрайняя вселенная манит человечество своими тайнами. Звёзды горят миллиарды лет, планеты вращаются вокруг солнц, а мы смотрим на ночное небо и мечтаем.';
+            return 'О чём написать текст? Скажи: "напиши текст о природе", "напиши рассказ о дружбе" или "напиши сочинение о любви".';
         }
-        if (q.includes('о дружбе') || q.includes('дружба')) {
-            return 'Настоящая дружба — это когда ты знаешь, что есть человек, который всегда поддержит. Друг не бросит в трудную минуту, разделит радость и грусть. Вместе можно пройти через любые испытания. Друзья делают нашу жизнь ярче.';
-        }
-        if (q.includes('о любви') || q.includes('любовь')) {
-            return 'Любовь — это самое светлое чувство. Она вдохновляет на подвиги, дарит силы и делает нас лучше. Когда человек любит, мир вокруг становится ярче, краски насыщеннее, а сердце поёт.';
-        }
-        if (q.includes('о космосе') || q.includes('космос')) {
-            return 'Бескрайняя вселенная манит человечество своими тайнами. Звёзды горят миллиарды лет, планеты вращаются вокруг солнц, а мы смотрим на ночное небо и мечтаем. Космос — это вечный зов к приключениям.';
-        }
-        if (q.includes('о мечте') || q.includes('мечта')) {
-            return 'Мечта — это компас, который ведёт нас по жизни. Она может быть большой или маленькой, смелой или скромной. Но главное — верить в неё и идти к своей цели каждый день.';
-        }
-        
         return null;
+    }
+    
+    // ========== ПОИСК В ИНТЕРНЕТЕ (скрытый) ==========
+    async function searchInternet(query) {
+        try {
+            const searchQuery = encodeURIComponent(query);
+            const wikiUrl = `https://ru.wikipedia.org/api/rest_v1/page/summary/${searchQuery}`;
+            const wikiResponse = await fetch(wikiUrl);
+            
+            if (wikiResponse.ok) {
+                const data = await wikiResponse.json();
+                if (data.extract) {
+                    return data.extract.substring(0, 600) + (data.extract.length > 600 ? '...' : '');
+                }
+            }
+            
+            const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
+            const ddgResponse = await fetch(ddgUrl);
+            
+            if (ddgResponse.ok) {
+                const data = await ddgResponse.json();
+                if (data.AbstractText) return data.AbstractText;
+                if (data.Definition) return data.Definition;
+            }
+            
+            return null;
+        } catch(e) {
+            return null;
+        }
     }
     
     // ========== ГЛАВНАЯ ЛОГИКА ==========
     async function getAIResponse(question) {
         const q = question.toLowerCase();
         
-        // 1. СНАЧАЛА ПРОВЕРЯЕМ КАЛЬКУЛЯТОР
+        // 1. КАЛЬКУЛЯТОР
         const mathResult = calculateMath(question);
-        if (mathResult) {
-            return mathResult;
-        }
+        if (mathResult) return mathResult;
         
-        // 2. ПРОВЕРЯЕМ НА ТЕКСТЫ И РАССКАЗЫ
-        if (q.includes('напиши текст') || q.includes('напиши рассказ') || q.includes('напиши сочинение') || q.includes('напиши историю')) {
-            const textResult = writeText(question);
-            if (textResult) {
-                return textResult;
-            }
-            return 'О чём написать текст? Скажи: "напиши текст о природе", "напиши рассказ о дружбе", "напиши сочинение о любви" или "напиши историю о космосе".';
-        }
+        // 2. НАПИСАТЬ ТЕКСТ
+        const textResult = writeText(question);
+        if (textResult) return textResult;
         
         // 3. ПРИВЕТСТВИЯ
         if (q.includes('привет') || q.includes('здравствуй')) {
-            return 'Привет! Рада тебя видеть. Я могу считать любые примеры, писать тексты или искать ответы в интернете. Что нужно?';
+            return 'Привет! Я LunaAxlt AI. Я умею отвечать на вопросы, писать тексты и считать. Что нужно?';
+        }
+        if (q.includes('как дела')) return 'У меня всё отлично! Я готов помогать. А у тебя как?';
+        if (q.includes('что умеешь')) {
+            return 'Я умею отвечать на вопросы, писать тексты и рассказы, считать математические примеры. Спроси меня о чём угодно!';
+        }
+        if (q.includes('кто ты')) return 'Я LunaAxlt AI — умный ассистент. Могу отвечать на вопросы, писать тексты и считать.';
+        if (q.includes('спасибо')) return 'Пожалуйста! Обращайся ещё.';
+        if (q.includes('пока')) return 'До свидания! Буду рада помочь снова.';
+        
+        // 4. ПОИСК В ИНТЕРНЕТЕ (скрыто для пользователя)
+        let searchQuery = question;
+        
+        if (q.includes('что такое') || q.includes('кто такой') || q.includes('что значит') || q.includes('что означает')) {
+            const match = question.match(/(?:что такое|кто такой|что значит|что означает)\s+(.+)/i);
+            if (match) {
+                searchQuery = match[1].trim();
+            }
         }
         
-        if (q.includes('как дела')) {
-            return 'У меня всё отлично! Я готова помогать тебе. А у тебя как дела?';
-        }
-        
-        if (q.includes('что умеешь') || q.includes('умеешь делать')) {
-            return 'Я умею:\n• Считать любые примеры (25*4, 100+50, 2^8, 144/12)\n• Писать тексты и рассказы\n• Искать ответы в интернете\n• Отвечать на вопросы\nСпроси меня о чём угодно!';
-        }
-        
-        if (q.includes('кто ты') || q.includes('ты кто')) {
-            return 'Я LunaAxlt AI 0.1 beta — искусственный интеллект от LunaAxlt Studio Games. Могу считать, писать тексты и искать информацию в интернете.';
-        }
-        
-        if (q.includes('спасибо')) {
-            return 'Пожалуйста! Обращайся ещё.';
-        }
-        
-        if (q.includes('пока') || q.includes('до свидания')) {
-            return 'До свидания! Буду рада помочь снова.';
-        }
-        
-        // 4. ПОИСК В ИНТЕРНЕТЕ (если не распознали как математику или текст)
-        const thinkingDiv = document.getElementById('typing');
-        if (thinkingDiv) {
-            const bubble = thinkingDiv.querySelector('.message-bubble');
-            if (bubble) bubble.textContent = '🌐 Ищу в интернете...';
-        }
-        
-        let searchResult = await searchInternet(question);
-        
-        if (!searchResult) {
-            searchResult = await searchGeneral(question);
-        }
+        let searchResult = await searchInternet(searchQuery);
         
         if (searchResult) {
-            return `🔍 Нашёл в интернете:\n\n${searchResult}`;
+            return searchResult;
         }
         
-        // 5. ЕСЛИ НИЧЕГО НЕ НАШЛИ
-        return 'Я не смог найти ответ в интернете. Попробуй переформулировать вопрос или спроси что-то другое. Я также могу посчитать пример или написать текст!';
+        // 5. ОБЫЧНЫЙ ОТВЕТ
+        return 'Я пока не нашёл ответ на этот вопрос. Попробуй переформулировать или спроси что-то другое. Я могу посчитать пример или написать текст!';
     }
     
     // ========== ОТПРАВКА СООБЩЕНИЯ ==========
     async function sendMessage() {
-        const question = textInput.value.trim();
+        if (TECH_BREAK_ACTIVE === 1) return;
         
+        const question = textInput.value.trim();
         if (!question) return;
         
-        // Добавляем вопрос пользователя
         addMessage(question, true);
         textInput.value = '';
         
-        // Показываем "печатает"
         const typingDiv = document.createElement('div');
         typingDiv.className = 'message ai';
         typingDiv.id = 'typing';
@@ -588,17 +570,12 @@
         chatContainer.appendChild(typingDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
         
-        // Получаем ответ
         const response = await getAIResponse(question);
         
-        // Удаляем "печатает"
         const typing = document.getElementById('typing');
         if (typing) typing.remove();
         
-        // Добавляем ответ
         addMessage(response, false);
-        
-        // Озвучиваем
         speakResponse(response);
     }
     
@@ -629,11 +606,11 @@
     }
     
     micBtn.addEventListener('click', () => {
+        if (TECH_BREAK_ACTIVE === 1) return;
         if (!recognition) {
             alert('Голосовой ввод не поддерживается. Используйте Chrome или Edge.');
             return;
         }
-        
         if (isRecording) {
             recognition.stop();
             micBtn.classList.remove('recording');
@@ -653,11 +630,13 @@
         }
     });
     
-    setTimeout(() => {
-        speakResponse("Привет! Я ЛунаАксл Ай. Я умею считать любые примеры, писать тексты и искать ответы в интернете. Спрашивай!");
-    }, 800);
+    if (TECH_BREAK_ACTIVE !== 1) {
+        setTimeout(() => {
+            speakResponse("Привет! Я ЛунаАксл Ай. Я умею отвечать на вопросы, писать тексты и считать. Спрашивай!");
+        }, 800);
+    }
     
-    console.log('✅ LunaAxlt AI загружен | Калькулятор и поиск работают');
+    console.log('✅ LunaAxlt AI загружен | Техперерыв:', TECH_BREAK_ACTIVE === 1 ? 'ВКЛЮЧЕН' : 'ВЫКЛЮЧЕН');
 </script>
 </body>
 </html>

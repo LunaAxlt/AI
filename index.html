@@ -211,7 +211,9 @@
             '#9b59b6', '#1abc9c', '#e67e22', '#e91e63'
         ];
 
-        let currentAngle = 0;
+        // Начальный угол: ставим сектор 8 по центру между 8 и 1 сверху
+        // Указатель сверху (0 градусов = верх холста)
+        let currentAngle = -Math.PI / sectors.length;
         let isSpinning = false;
         let spinHistory = [];
 
@@ -292,12 +294,16 @@
         }
 
         function getSectorFromAngle(angle) {
-            const normalizedAngle = ((angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            // Нормализуем угол
+            let normalizedAngle = angle % (2 * Math.PI);
+            if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
+
             const arcSize = (2 * Math.PI) / sectors.length;
-            // Указатель сверху, поэтому сдвиг на -PI/2
-            const pointerAngle = (2 * Math.PI - normalizedAngle + Math.PI / 2) % (2 * Math.PI);
+            // Указатель сверху, верх холста соответствует углу -PI/2 в стандартной системе
+            // Переводим: угол 0 в нашей системе = верх холста
+            const pointerAngle = (normalizedAngle + Math.PI / 2) % (2 * Math.PI);
             const sectorIndex = Math.floor(pointerAngle / arcSize);
-            return sectors[sectorIndex];
+            return sectors[sectorIndex % sectors.length];
         }
 
         function spin() {
@@ -322,15 +328,30 @@
             // Выбираем ТОЛЬКО 1 или 2
             const fakeResult = Math.random() < 0.5 ? 1 : 2;
 
-            // Считаем угол так, чтобы стрелка указала на нужный сектор
             const arcSize = (2 * Math.PI) / sectors.length;
             const targetIndex = sectors.indexOf(fakeResult);
-            // Угол для указателя сверху
-            const targetAngle = (2 * Math.PI - (targetIndex * arcSize + arcSize / 2) + Math.PI / 2) % (2 * Math.PI);
 
-            // Добавляем несколько полных оборотов + доворот до цели
+            // Указатель сверху, нам нужен сектор targetIndex под указателем
+            // Сектор i занимает углы от i*arcSize до (i+1)*arcSize относительно currentAngle
+            // Указатель сверху — это угол -PI/2 в стандартной системе
+            // Чтобы сектор targetIndex был сверху, нужно:
+            // Центр сектора targetIndex: targetIndex * arcSize + arcSize / 2
+            // Должен быть наверху: -PI/2 + 2*PI*k
+            // То есть currentAngle + (targetIndex * arcSize + arcSize / 2) = -PI/2 + 2*PI*k
+            // currentAngle = -PI/2 - (targetIndex * arcSize + arcSize / 2) + 2*PI*k
+
+            let targetAngle = -Math.PI / 2 - (targetIndex * arcSize + arcSize / 2);
+            // Приводим к диапазону [0, 2*PI)
+            targetAngle = ((targetAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+            // Сколько нужно довернуть от текущего угла
+            let currentNorm = ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            let delta = targetAngle - currentNorm;
+            if (delta < 0) delta += 2 * Math.PI;
+
+            // Добавляем несколько полных оборотов
             const fullSpins = (5 + Math.floor(Math.random() * 5)) * 2 * Math.PI;
-            const finalAngle = currentAngle + fullSpins + ((targetAngle - (currentAngle % (2 * Math.PI)) + 4 * Math.PI) % (2 * Math.PI));
+            const finalAngle = currentAngle + fullSpins + delta;
 
             const duration = 4000 + Math.random() * 2000;
             const startTime = performance.now();

@@ -1,411 +1,582 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Колесо фортуны</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Взлом устройства · Phone Hack Simulator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    body {
+      background: #0a0000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Courier New', 'Fira Code', monospace;
+      padding: 20px;
+      animation: bodyShake 0.3s infinite;
+    }
 
-        .container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 30px;
-            padding: 40px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+    @keyframes bodyShake {
+      0%, 100% { background: #0a0000; }
+      50% { background: #0f0000; }
+    }
 
-        h1 {
-            color: #ffd700;
-            margin-bottom: 20px;
-            font-size: 2.5em;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-            letter-spacing: 2px;
-        }
+    .alert-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 0, 0, 0.4);
+      pointer-events: none;
+      z-index: 200;
+      animation: redFlash 0.35s infinite;
+    }
 
-        .wheel-wrapper {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            margin: 30px 0;
-        }
+    @keyframes redFlash {
+      0%, 100% { background: rgba(255, 0, 0, 0.5); }
+      50% { background: rgba(200, 0, 0, 0.2); }
+    }
 
-        canvas {
-            display: block;
-            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.6));
-            transition: filter 0.3s;
-        }
+    .phone {
+      width: 420px;
+      max-width: 100%;
+      background: #0d1117;
+      border-radius: 48px;
+      box-shadow: 0 20px 50px rgba(255, 0, 0, 0.5), 0 0 45px rgba(255, 30, 30, 0.8);
+      padding: 18px 12px 22px;
+      position: relative;
+      border: 3px solid #ff3333;
+      z-index: 10;
+      animation: phoneShake 0.1s infinite;
+    }
 
-        canvas.spinning {
-            filter: drop-shadow(0 10px 30px rgba(255, 215, 0, 0.4));
-        }
+    @keyframes phoneShake {
+      0%, 100% { transform: translateX(0) rotate(0deg); }
+      25% { transform: translateX(-5px) rotate(-0.5deg); }
+      75% { transform: translateX(-4px) rotate(-0.3deg); }
+    }
 
-        .pointer {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 25px solid transparent;
-            border-right: 25px solid transparent;
-            border-top: 45px solid #ffd700;
-            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
-            z-index: 10;
-        }
+    .screen {
+      background: #030503;
+      border-radius: 36px;
+      padding: 16px 12px 12px;
+      box-shadow: inset 0 0 55px rgba(255, 0, 0, 0.7);
+      border: 2px solid #5c1a1a;
+      min-height: 700px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
 
-        .question-area {
-            margin-top: 30px;
-        }
+    .notch {
+      width: 110px;
+      height: 26px;
+      background: #0b0f12;
+      margin: 0 auto 12px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #5c1a1a;
+      color: #ff4444;
+      font-size: 11px;
+      letter-spacing: 1px;
+      animation: blink 0.5s infinite;
+    }
 
-        .question-input {
-            width: 400px;
-            max-width: 90vw;
-            padding: 15px 20px;
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            border-radius: 50px;
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-            transition: all 0.3s;
-            text-align: center;
-        }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.25; }
+    }
 
-        .question-input:focus {
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-        }
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      color: #ff4444;
+      font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      text-shadow: 0 0 12px #ff0000;
+      animation: blink 0.3s infinite;
+    }
 
-        .question-input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
+    /* Камера */
+    .camera-feed {
+      background: #000;
+      border-radius: 16px;
+      margin-bottom: 8px;
+      border: 3px solid #ff3333;
+      overflow: hidden;
+      position: relative;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgb(255, 0, 0);
+    }
 
-        .btn {
-            display: block;
-            margin: 20px auto;
-            padding: 15px 60px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #1a1a2e;
-            background: linear-gradient(135deg, #ffd700, #ffaa00);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            transition: all 0.3s;
-            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
-        }
+    .camera-feed video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 14px;
+      transform: scaleX(-1);
+    }
 
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.4);
-        }
+    .camera-feed img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      border-radius: 14px;
+      transform: scaleX(-1);
+    }
 
-        .btn:active {
-            transform: translateY(0);
-        }
+    .camera-label {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      background: rgba(255, 0, 0, 0.9);
+      color: white;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      animation: blink 0.4s infinite;
+      z-index: 5;
+    }
 
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
+    .rec-dot {
+      width: 9px;
+      height: 9px;
+      background: red;
+      border-radius: 50%;
+      animation: blink 0.3s infinite;
+    }
 
-        .result {
-            margin-top: 20px;
-            font-size: 28px;
-            color: #ffd700;
-            min-height: 40px;
-            font-weight: bold;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-            transition: all 0.3s;
-        }
+    .target-name {
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.9);
+      color: #ff6666;
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-weight: bold;
+      border: 1px solid #ff3333;
+      z-index: 5;
+    }
 
-        .history {
-            margin-top: 15px;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 14px;
-            max-height: 100px;
-            overflow-y: auto;
-        }
+    .location-tag {
+      position: absolute;
+      bottom: 8px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.9);
+      color: #ffaa00;
+      font-size: 10px;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-weight: bold;
+      border: 1px solid #ff8800;
+      z-index: 5;
+    }
 
-        .history span {
-            display: inline-block;
-            background: rgba(255, 215, 0, 0.1);
-            padding: 3px 10px;
-            border-radius: 15px;
-            margin: 2px;
-            color: #ffd700;
-        }
+    .phone-number-tag {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.9);
+      color: #ff4444;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-weight: bold;
+      border: 1px solid #ff3333;
+      z-index: 5;
+      animation: blink 0.5s infinite;
+    }
 
-        .sectors-info {
-            margin-top: 15px;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 13px;
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-    </style>
+    /* Терминал */
+    .terminal {
+      background: #010301;
+      border-radius: 16px;
+      padding: 10px 8px;
+      flex: 1;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #ff9999;
+      border: 2px solid #5c1a1a;
+      box-shadow: inset 0 0 25px #1a0000;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      max-height: 160px;
+    }
+
+    .terminal::-webkit-scrollbar { width: 3px; }
+    .terminal::-webkit-scrollbar-thumb { background: #ff3333; border-radius: 8px; }
+
+    .line { display: flex; flex-wrap: wrap; word-break: break-all; }
+    .prompt { color: #ff6666; margin-right: 5px; font-weight: bold; }
+    .success { color: #ff8888; }
+    .warning { color: #ffb000; }
+    .error { color: #ff4444; }
+    .info { color: #ff7777; }
+    .highlight { color: #ffff60; font-weight: bold; }
+    .critical { color: #ff0000; font-weight: bold; font-size: 14px; }
+    .location { color: #ffaa00; font-weight: bold; }
+    .phone-num { color: #ff6666; font-weight: bold; }
+
+    .progress-section { margin: 4px 0 6px; }
+    .progress-label { display: flex; justify-content: space-between; color: #ff6666; font-size: 11px; margin-bottom: 2px; }
+    .progress-bar-bg { background: #1a0000; height: 14px; border-radius: 20px; overflow: hidden; border: 2px solid #5c1a1a; }
+    .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #cc0000, #ff3333); box-shadow: 0 0 25px #ff0000; border-radius: 20px; transition: width 0.2s; }
+
+    .siren-indicator { text-align: center; color: red; font-weight: bold; font-size: 14px; animation: blink 0.25s infinite; margin-top: 2px; }
+
+    .controls { display: flex; gap: 10px; justify-content: center; margin-top: 4px; flex-wrap: wrap; }
+
+    .btn {
+      background: #1a0000;
+      border: 2px solid #ff3333;
+      color: #ff8888;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-family: inherit;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 0 18px rgba(255, 0, 0, 0.6);
+    }
+
+    .btn:hover { background: #2b0000; }
+
+    .stop-message {
+      text-align: center;
+      color: #ffff00;
+      font-size: 13px;
+      font-weight: bold;
+      margin-top: 6px;
+      animation: blink 0.5s infinite;
+      display: none;
+    }
+
+    .data-stolen {
+      display: flex;
+      justify-content: space-around;
+      margin: 4px 0;
+      font-size: 9px;
+      color: #ff8888;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .data-item {
+      background: #1a0000;
+      padding: 5px 8px;
+      border-radius: 10px;
+      border: 1px solid #5c1a1a;
+      animation: blink 0.5s infinite;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎰 Колесо фортуны</h1>
+  <div class="alert-overlay"></div>
 
-        <div class="wheel-wrapper">
-            <div class="pointer"></div>
-            <canvas id="wheel" width="450" height="450"></canvas>
+  <div class="phone">
+    <div class="screen">
+      <div class="notch">⚠ TARGET LOCKED</div>
+      <div class="status-bar">
+        <span>🚨 ВЗЛОМ АКТИВЕН</span>
+        <span style="animation: blink 0.2s infinite;">⚠ LIVE</span>
+      </div>
+
+      <!-- Камера -->
+      <div class="camera-feed" id="cameraFeed">
+        <video id="cameraVideo" autoplay playsinline></video>
+        <img id="capturedPhoto" alt="Захваченное фото" />
+        <div class="camera-label">
+          <span class="rec-dot"></span> REC • КАМЕРА ВЗЛОМАНА
         </div>
+        <div class="target-name">👤 ВАНЯ</div>
+        <div class="location-tag">📍 Родниковые пруды</div>
+        <div class="phone-number-tag">📱 8 (902) 244-30-06</div>
+      </div>
 
-        <div class="question-area">
-            <input 
-                type="text" 
-                class="question-input" 
-                id="questionInput" 
-                placeholder="Задайте вопрос судьбе..."
-                maxlength="80"
-            >
+      <!-- Терминал -->
+      <div class="terminal" id="terminal">
+        <div class="line"><span class="prompt">root@hack~#</span> <span>запуск системы взлома...</span></div>
+      </div>
+
+      <!-- Прогресс -->
+      <div class="progress-section">
+        <div class="progress-label">
+          <span id="progressText">Взлом устройства</span>
+          <span id="progressPercent">0%</span>
         </div>
-
-        <button class="btn" id="spinBtn">🎯 Крутить</button>
-
-        <div class="result" id="result"></div>
-        <div class="history" id="history"></div>
-        <div class="sectors-info">
-            <span>Секторов: 8</span>
-            <span>Диапазон: 1–8</span>
+        <div class="progress-bar-bg">
+          <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
         </div>
+      </div>
+
+      <div class="siren-indicator">🚨 СИРЕНА! СИРЕНА! СИРЕНА! 🚨</div>
+
+      <div class="data-stolen">
+        <div class="data-item">📱 SMS: 847</div>
+        <div class="data-item">📞 Контакты: 312</div>
+        <div class="data-item">📸 Фото: 1.4 ГБ</div>
+        <div class="data-item">💬 Telegram: взломан</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="resetBtn">↺ ПРЕКРАТИТЬ ВЗЛОМ</button>
+      </div>
+
+      <div class="stop-message" id="stopMessage">
+        ⚠ для прекращения взлома @Lidas3 пиши сюда ⚠
+      </div>
     </div>
+  </div>
 
-    <script>
-        const canvas = document.getElementById('wheel');
+  <script>
+    (function() {
+      const FRIEND_NAME = "ВАНЯ";
+      const FRIEND_PHONE_MODEL = "iPhone 15 Pro Max";
+      const FRIEND_LOCATION = "Родниковые пруды";
+      const FRIEND_PHONE_NUMBER = "8 (902) 244-30-06";
+
+      const terminal = document.getElementById('terminal');
+      const progressFill = document.getElementById('progressFill');
+      const progressPercent = document.getElementById('progressPercent');
+      const progressText = document.getElementById('progressText');
+      const resetBtn = document.getElementById('resetBtn');
+      const cameraVideo = document.getElementById('cameraVideo');
+      const capturedPhoto = document.getElementById('capturedPhoto');
+      const stopMessage = document.getElementById('stopMessage');
+
+      let hackingActive = true;
+      let progressInterval = null;
+      let sirenInterval = null;
+      let currentProgress = 0;
+
+      // Запуск реальной камеры
+      async function startCamera() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: "user", width: 400, height: 220 } 
+          });
+          cameraVideo.srcObject = stream;
+          cameraVideo.style.display = 'block';
+          capturedPhoto.style.display = 'none';
+          
+          // Через 1.5 секунды делаем "фото"
+          setTimeout(() => {
+            capturePhoto();
+          }, 1500);
+          
+          return stream;
+        } catch(e) {
+          addTerminalLine('камера недоступна, использую заглушку', 'warning');
+          return null;
+        }
+      }
+
+      // Захват фото с камеры
+      function capturePhoto() {
+        if (!cameraVideo.srcObject) return;
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = 400;
+        canvas.height = 220;
         const ctx = canvas.getContext('2d');
-        const spinBtn = document.getElementById('spinBtn');
-        const questionInput = document.getElementById('questionInput');
-        const resultDiv = document.getElementById('result');
-        const historyDiv = document.getElementById('history');
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+        
+        capturedPhoto.src = canvas.toDataURL('image/png');
+        capturedPhoto.style.display = 'block';
+        cameraVideo.style.display = 'none';
+        
+        addTerminalLine('📸 ФОТО СДЕЛАНО! Лицо захвачено!', 'critical');
+      }
 
-        const sectors = [1, 2, 3, 4, 5, 6, 7, 8];
-        const colors = [
-            '#e74c3c', '#f39c12', '#2ecc71', '#3498db',
-            '#9b59b6', '#1abc9c', '#e67e22', '#e91e63'
+      // Сирена
+      function createSiren() {
+        try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          function play() {
+            if (!hackingActive) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(350, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(900, audioCtx.currentTime + 0.5);
+            osc.frequency.linearRampToValueAtTime(350, audioCtx.currentTime + 1);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 1);
+          }
+          sirenInterval = setInterval(() => { if (hackingActive) play(); }, 800);
+        } catch(e) {}
+      }
+
+      function addTerminalLine(text, type = "") {
+        const lineDiv = document.createElement('div');
+        lineDiv.className = 'line';
+        const promptSpan = document.createElement('span');
+        promptSpan.className = 'prompt';
+        promptSpan.textContent = 'root@exploit~#';
+        const contentSpan = document.createElement('span');
+        contentSpan.textContent = text;
+        if (type) contentSpan.classList.add(type);
+        lineDiv.appendChild(promptSpan);
+        lineDiv.appendChild(contentSpan);
+        terminal.appendChild(lineDiv);
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+
+      function updateProgressUI(percent, label = null) {
+        progressFill.style.width = `${percent}%`;
+        progressPercent.textContent = `${percent}%`;
+        if (label) progressText.textContent = label;
+      }
+
+      function startHacking() {
+        hackingActive = true;
+        currentProgress = 0;
+        terminal.innerHTML = '';
+        stopMessage.style.display = 'none';
+        
+        // Запуск камеры
+        startCamera();
+
+        addTerminalLine('🚨 ОБНАРУЖЕНО УСТРОЙСТВО!', 'critical');
+        addTerminalLine(`Имя: ${FRIEND_NAME}`, 'highlight');
+        addTerminalLine(`Модель: ${FRIEND_PHONE_MODEL}`, 'info');
+        addTerminalLine(`📱 Номер: ${FRIEND_PHONE_NUMBER}`, 'phone-num');
+        addTerminalLine(`📍 GPS: ${FRIEND_LOCATION}`, 'location');
+        addTerminalLine('📷 ЗАПРОС КАМЕРЫ ТЕЛЕФОНА...', 'warning');
+        addTerminalLine('доступ к фронтальной камере получен!', 'success');
+
+        createSiren();
+
+        const stages = [
+          { percent: 10, label: 'Захват камеры...' },
+          { percent: 25, label: 'Фото лица...' },
+          { percent: 40, label: 'Взлом Telegram...' },
+          { percent: 55, label: 'Данные телефона...' },
+          { percent: 70, label: 'Геолокация...' },
+          { percent: 85, label: 'Бэкдор...' },
+          { percent: 100, label: 'ГОТОВО!' }
         ];
 
-        // Начальный угол: ставим сектор 8 по центру между 8 и 1 сверху
-        // Указатель сверху (0 градусов = верх холста)
-        let currentAngle = -Math.PI / sectors.length;
-        let isSpinning = false;
-        let spinHistory = [];
+        let stageIndex = 0;
 
-        function drawWheel(angle) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Добавляем логи поэтапно
+        const logTimer = setInterval(() => {
+          if (!hackingActive) { clearInterval(logTimer); return; }
+          
+          if (currentProgress >= 25 && currentProgress < 26) {
+            addTerminalLine('📸 ФОТО СДЕЛАНО! Лицо распознано!', 'critical');
+          }
+          if (currentProgress >= 40 && currentProgress < 41) {
+            addTerminalLine('💬 ВЗЛОМ Telegram...', 'warning');
+            addTerminalLine('чаты: 47 диалогов', 'info');
+            addTerminalLine('Telegram взломан!', 'success');
+          }
+          if (currentProgress >= 55 && currentProgress < 56) {
+            addTerminalLine('📷 ВЗЛОМ КАМЕР ТЕЛЕФОНА...', 'warning');
+            addTerminalLine('основная камера: доступ получен', 'success');
+            addTerminalLine('🔓 ДОСТУП К ТЕЛЕФОНУ ПОЛУЧЕН!', 'critical');
+          }
+          if (currentProgress >= 70 && currentProgress < 71) {
+            addTerminalLine('SMS: 847 сообщений', 'info');
+            addTerminalLine('Контакты: 312 записей', 'info');
+            addTerminalLine('Галерея: 1.4 ГБ фото', 'info');
+          }
+          if (currentProgress >= 85 && currentProgress < 86) {
+            addTerminalLine(`📞 ${FRIEND_PHONE_NUMBER}`, 'phone-num');
+            addTerminalLine('бэкдор установлен', 'error');
+          }
+          if (currentProgress >= 100) {
+            addTerminalLine('✅ ВЗЛОМ ЗАВЕРШЁН! @Lidas3', 'critical');
+            clearInterval(logTimer);
+          }
+        }, 300);
 
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const radius = 190;
-            const arcSize = (2 * Math.PI) / sectors.length;
-
-            // Рисуем сектора
-            sectors.forEach((num, i) => {
-                const startAngle = angle + i * arcSize;
-                const endAngle = startAngle + arcSize;
-
-                // Градиент для сектора
-                const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-                gradient.addColorStop(0, lightenColor(colors[i], 30));
-                gradient.addColorStop(1, colors[i]);
-
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-                ctx.closePath();
-                ctx.fillStyle = gradient;
-                ctx.fill();
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                // Текст номера
-                const textAngle = startAngle + arcSize / 2;
-                const textX = centerX + Math.cos(textAngle) * (radius * 0.65);
-                const textY = centerY + Math.sin(textAngle) * (radius * 0.65);
-
-                ctx.save();
-                ctx.translate(textX, textY);
-                ctx.rotate(textAngle + Math.PI / 2);
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 28px "Segoe UI", Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 5;
-                ctx.fillText(num, 0, 0);
-                ctx.restore();
-            });
-
-            // Центральный круг
-            const centerGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 45);
-            centerGradient.addColorStop(0, '#ffd700');
-            centerGradient.addColorStop(1, '#b8860b');
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI);
-            ctx.fillStyle = centerGradient;
-            ctx.fill();
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-
-            // Внешнее кольцо
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius + 5, 0, 2 * Math.PI);
-            ctx.strokeStyle = 'rgba(255, 215, 0, 0.4)';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-        }
-
-        function lightenColor(hex, percent) {
-            const num = parseInt(hex.replace('#', ''), 16);
-            const amt = Math.round(2.55 * percent);
-            const R = Math.min(255, (num >> 16) + amt);
-            const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
-            const B = Math.min(255, (num & 0x0000FF) + amt);
-            return `rgb(${R}, ${G}, ${B})`;
-        }
-
-        function getSectorFromAngle(angle) {
-            // Нормализуем угол
-            let normalizedAngle = angle % (2 * Math.PI);
-            if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
-
-            const arcSize = (2 * Math.PI) / sectors.length;
-            // Указатель сверху, верх холста соответствует углу -PI/2 в стандартной системе
-            // Переводим: угол 0 в нашей системе = верх холста
-            const pointerAngle = (normalizedAngle + Math.PI / 2) % (2 * Math.PI);
-            const sectorIndex = Math.floor(pointerAngle / arcSize);
-            return sectors[sectorIndex % sectors.length];
-        }
-
-        function spin() {
-            if (isSpinning) return;
-
-            const question = questionInput.value.trim();
-            if (!question) {
-                questionInput.style.borderColor = '#e74c3c';
-                questionInput.placeholder = 'Сначала задайте вопрос!';
-                setTimeout(() => {
-                    questionInput.style.borderColor = 'rgba(255, 215, 0, 0.3)';
-                    questionInput.placeholder = 'Задайте вопрос судьбе...';
-                }, 1500);
-                return;
+        progressInterval = setInterval(() => {
+          if (!hackingActive) { clearInterval(progressInterval); return; }
+          if (currentProgress < 100 && stageIndex < stages.length) {
+            const target = stages[stageIndex].percent;
+            if (currentProgress < target) {
+              currentProgress = Math.min(currentProgress + 1, target);
+              updateProgressUI(currentProgress, stages[stageIndex].label);
+            } else {
+              stageIndex++;
             }
+          } else if (currentProgress >= 100) {
+            clearInterval(progressInterval);
+            updateProgressUI(100, 'ВЗЛОМ ЗАВЕРШЁН!');
+          }
+        }, 60);
+      }
 
-            isSpinning = true;
-            spinBtn.disabled = true;
-            canvas.classList.add('spinning');
-            resultDiv.textContent = 'Крутим...';
-
-            // Выбираем ТОЛЬКО 1 или 2
-            const fakeResult = Math.random() < 0.5 ? 1 : 2;
-
-            const arcSize = (2 * Math.PI) / sectors.length;
-            const targetIndex = sectors.indexOf(fakeResult);
-
-            // Указатель сверху, нам нужен сектор targetIndex под указателем
-            // Сектор i занимает углы от i*arcSize до (i+1)*arcSize относительно currentAngle
-            // Указатель сверху — это угол -PI/2 в стандартной системе
-            // Чтобы сектор targetIndex был сверху, нужно:
-            // Центр сектора targetIndex: targetIndex * arcSize + arcSize / 2
-            // Должен быть наверху: -PI/2 + 2*PI*k
-            // То есть currentAngle + (targetIndex * arcSize + arcSize / 2) = -PI/2 + 2*PI*k
-            // currentAngle = -PI/2 - (targetIndex * arcSize + arcSize / 2) + 2*PI*k
-
-            let targetAngle = -Math.PI / 2 - (targetIndex * arcSize + arcSize / 2);
-            // Приводим к диапазону [0, 2*PI)
-            targetAngle = ((targetAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-
-            // Сколько нужно довернуть от текущего угла
-            let currentNorm = ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-            let delta = targetAngle - currentNorm;
-            if (delta < 0) delta += 2 * Math.PI;
-
-            // Добавляем несколько полных оборотов
-            const fullSpins = (5 + Math.floor(Math.random() * 5)) * 2 * Math.PI;
-            const finalAngle = currentAngle + fullSpins + delta;
-
-            const duration = 4000 + Math.random() * 2000;
-            const startTime = performance.now();
-            const startAngle = currentAngle;
-
-            function animate(now) {
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-
-                // Замедление в конце (ease-out)
-                const eased = 1 - Math.pow(1 - progress, 3);
-                currentAngle = startAngle + (finalAngle - startAngle) * eased;
-
-                drawWheel(currentAngle);
-
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                } else {
-                    // Готово
-                    canvas.classList.remove('spinning');
-                    isSpinning = false;
-                    spinBtn.disabled = false;
-
-                    const sector = getSectorFromAngle(currentAngle);
-                    resultDiv.textContent = `Выпало: ${sector}`;
-
-                    // История
-                    spinHistory.unshift({
-                        question: question,
-                        result: sector,
-                        time: new Date().toLocaleTimeString()
-                    });
-                    if (spinHistory.length > 10) spinHistory.pop();
-
-                    updateHistory();
-                }
-            }
-
-            requestAnimationFrame(animate);
+      function stopEverything() {
+        hackingActive = false;
+        if (progressInterval) clearInterval(progressInterval);
+        if (sirenInterval) clearInterval(sirenInterval);
+        progressInterval = null;
+        sirenInterval = null;
+        
+        // Остановка камеры
+        if (cameraVideo.srcObject) {
+          cameraVideo.srcObject.getTracks().forEach(track => track.stop());
+          cameraVideo.srcObject = null;
         }
+      }
 
-        function updateHistory() {
-            historyDiv.innerHTML = spinHistory
-                .map(h => `<span>«${h.question.substring(0, 25)}${h.question.length > 25 ? '...' : ''}» → ${h.result}</span>`)
-                .join(' ');
-        }
+      function resetAll() {
+        stopEverything();
+        currentProgress = 0;
+        updateProgressUI(0, 'Взлом остановлен');
+        terminal.innerHTML = '';
+        addTerminalLine('⚠ ВЗЛОМ ПРЕКРАЩЁН!', 'critical');
+        addTerminalLine('', '');
+        addTerminalLine('для прекращения взлома @Lidas3 пиши сюда', 'highlight');
+        addTerminalLine('', '');
+        capturedPhoto.style.display = 'none';
+        cameraVideo.style.display = 'none';
+        stopMessage.style.display = 'block';
+        
+        // Перезапуск через 2 секунды
+        setTimeout(() => {
+          if (!hackingActive) startHacking();
+        }, 2000);
+      }
 
-        spinBtn.addEventListener('click', spin);
-        questionInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') spin();
-        });
+      resetBtn.addEventListener('click', resetAll);
 
-        // Начальная отрисовка
-        drawWheel(currentAngle);
-    </script>
+      // ЗАПУСК
+      startHacking();
+    })();
+  </script>
 </body>
 </html>

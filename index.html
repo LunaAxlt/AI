@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Взлом устройства · Phone Hack Simulator</title>
+  <title>Взлом завершён · Phone Hack Simulator</title>
   <style>
     * {
       margin: 0;
@@ -12,63 +12,61 @@
     }
 
     body {
-      background: #0a0000;
+      background: #000a00;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       font-family: 'Courier New', 'Fira Code', monospace;
       padding: 20px;
-      animation: bodyShake 0.3s infinite;
+      animation: bodyPulse 2s infinite;
     }
 
-    @keyframes bodyShake {
-      0%, 100% { background: #0a0000; }
-      50% { background: #0f0000; }
+    @keyframes bodyPulse {
+      0%, 100% { background: #000a00; }
+      50% { background: #001a00; }
     }
 
-    .alert-overlay {
+    .matrix-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255, 0, 0, 0.4);
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 0, 0.02) 0px,
+        transparent 2px,
+        rgba(0, 255, 0, 0.01) 4px
+      );
       pointer-events: none;
       z-index: 200;
-      animation: redFlash 0.35s infinite;
-    }
-
-    @keyframes redFlash {
-      0%, 100% { background: rgba(255, 0, 0, 0.5); }
-      50% { background: rgba(200, 0, 0, 0.2); }
     }
 
     .phone {
       width: 420px;
       max-width: 100%;
-      background: #0d1117;
+      background: #0a0f0a;
       border-radius: 48px;
-      box-shadow: 0 20px 50px rgba(255, 0, 0, 0.5), 0 0 45px rgba(255, 30, 30, 0.8);
+      box-shadow: 0 20px 50px rgba(0, 255, 0, 0.3), 0 0 45px rgba(0, 200, 0, 0.5);
       padding: 18px 12px 22px;
       position: relative;
-      border: 3px solid #ff3333;
+      border: 3px solid #00ff00;
       z-index: 10;
-      animation: phoneShake 0.1s infinite;
+      animation: phoneGlow 2s infinite;
     }
 
-    @keyframes phoneShake {
-      0%, 100% { transform: translateX(0) rotate(0deg); }
-      25% { transform: translateX(-5px) rotate(-0.5deg); }
-      75% { transform: translateX(-4px) rotate(-0.3deg); }
+    @keyframes phoneGlow {
+      0%, 100% { box-shadow: 0 20px 50px rgba(0, 255, 0, 0.3), 0 0 45px rgba(0, 200, 0, 0.5); }
+      50% { box-shadow: 0 20px 60px rgba(0, 255, 0, 0.5), 0 0 70px rgba(0, 255, 0, 0.7); }
     }
 
     .screen {
-      background: #030503;
+      background: #020502;
       border-radius: 36px;
       padding: 16px 12px 12px;
-      box-shadow: inset 0 0 55px rgba(255, 0, 0, 0.7);
-      border: 2px solid #5c1a1a;
+      box-shadow: inset 0 0 55px rgba(0, 255, 0, 0.4);
+      border: 2px solid #003300;
       min-height: 700px;
       display: flex;
       flex-direction: column;
@@ -79,34 +77,56 @@
     .notch {
       width: 110px;
       height: 26px;
-      background: #0b0f12;
+      background: #0a0f0a;
       margin: 0 auto 12px;
       border-radius: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid #5c1a1a;
-      color: #ff4444;
+      border: 1px solid #00ff00;
+      color: #00ff00;
       font-size: 11px;
       letter-spacing: 1px;
-      animation: blink 0.5s infinite;
+      animation: blink 2s infinite;
     }
 
     @keyframes blink {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.25; }
+      50% { opacity: 0.5; }
     }
 
     .status-bar {
       display: flex;
       justify-content: space-between;
-      color: #ff4444;
+      color: #00ff00;
       font-size: 14px;
       font-weight: bold;
       text-transform: uppercase;
       margin-bottom: 6px;
-      text-shadow: 0 0 12px #ff0000;
-      animation: blink 0.3s infinite;
+      text-shadow: 0 0 12px #00ff00;
+    }
+
+    .complete-banner {
+      text-align: center;
+      background: #001a00;
+      border: 2px solid #00ff00;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 8px;
+      animation: blink 1s infinite;
+    }
+
+    .complete-banner h2 {
+      color: #00ff00;
+      font-size: 18px;
+      text-shadow: 0 0 15px #00ff00;
+      margin: 0;
+    }
+
+    .complete-banner p {
+      color: #00cc00;
+      font-size: 12px;
+      margin: 4px 0 0;
     }
 
     /* Камера */
@@ -114,57 +134,37 @@
       background: #000;
       border-radius: 16px;
       margin-bottom: 8px;
-      border: 3px solid #ff3333;
+      border: 3px solid #00ff00;
       overflow: hidden;
       position: relative;
-      height: 220px;
+      height: 180px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 40px rgb(255, 0, 0);
-    }
-
-    .camera-feed video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      border-radius: 14px;
-      transform: scaleX(-1);
+      box-shadow: 0 0 40px rgba(0, 255, 0, 0.5);
     }
 
     .camera-feed img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: none;
+      display: block;
       border-radius: 14px;
-      transform: scaleX(-1);
+      filter: grayscale(100%) brightness(0.7) sepia(100%) hue-rotate(70deg) saturate(3);
     }
 
     .camera-label {
       position: absolute;
       top: 8px;
       left: 10px;
-      background: rgba(255, 0, 0, 0.9);
-      color: white;
-      font-size: 11px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #00ff00;
+      font-size: 10px;
       padding: 4px 10px;
       border-radius: 10px;
       font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      animation: blink 0.4s infinite;
+      border: 1px solid #00ff00;
       z-index: 5;
-    }
-
-    .rec-dot {
-      width: 9px;
-      height: 9px;
-      background: red;
-      border-radius: 50%;
-      animation: blink 0.3s infinite;
     }
 
     .target-name {
@@ -172,12 +172,12 @@
       bottom: 8px;
       right: 10px;
       background: rgba(0, 0, 0, 0.9);
-      color: #ff6666;
+      color: #00ff00;
       font-size: 12px;
       padding: 3px 10px;
       border-radius: 10px;
       font-weight: bold;
-      border: 1px solid #ff3333;
+      border: 1px solid #00ff00;
       z-index: 5;
     }
 
@@ -186,28 +186,13 @@
       bottom: 8px;
       left: 10px;
       background: rgba(0, 0, 0, 0.9);
-      color: #ffaa00;
+      color: #00ff00;
       font-size: 10px;
       padding: 3px 10px;
       border-radius: 10px;
       font-weight: bold;
-      border: 1px solid #ff8800;
+      border: 1px solid #00ff00;
       z-index: 5;
-    }
-
-    .phone-number-tag {
-      position: absolute;
-      top: 8px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.9);
-      color: #ff4444;
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 10px;
-      font-weight: bold;
-      border: 1px solid #ff3333;
-      z-index: 5;
-      animation: blink 0.5s infinite;
     }
 
     /* Терминал */
@@ -218,364 +203,156 @@
       flex: 1;
       overflow-y: auto;
       font-size: 12px;
-      line-height: 1.5;
-      color: #ff9999;
-      border: 2px solid #5c1a1a;
-      box-shadow: inset 0 0 25px #1a0000;
+      line-height: 1.6;
+      color: #00ff00;
+      border: 2px solid #003300;
+      box-shadow: inset 0 0 25px #001a00;
       margin-bottom: 8px;
       display: flex;
       flex-direction: column;
       gap: 1px;
-      max-height: 160px;
+      max-height: 200px;
     }
 
     .terminal::-webkit-scrollbar { width: 3px; }
-    .terminal::-webkit-scrollbar-thumb { background: #ff3333; border-radius: 8px; }
+    .terminal::-webkit-scrollbar-thumb { background: #00ff00; border-radius: 8px; }
 
     .line { display: flex; flex-wrap: wrap; word-break: break-all; }
-    .prompt { color: #ff6666; margin-right: 5px; font-weight: bold; }
-    .success { color: #ff8888; }
-    .warning { color: #ffb000; }
-    .error { color: #ff4444; }
-    .info { color: #ff7777; }
-    .highlight { color: #ffff60; font-weight: bold; }
-    .critical { color: #ff0000; font-weight: bold; font-size: 14px; }
-    .location { color: #ffaa00; font-weight: bold; }
-    .phone-num { color: #ff6666; font-weight: bold; }
-
-    .progress-section { margin: 4px 0 6px; }
-    .progress-label { display: flex; justify-content: space-between; color: #ff6666; font-size: 11px; margin-bottom: 2px; }
-    .progress-bar-bg { background: #1a0000; height: 14px; border-radius: 20px; overflow: hidden; border: 2px solid #5c1a1a; }
-    .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #cc0000, #ff3333); box-shadow: 0 0 25px #ff0000; border-radius: 20px; transition: width 0.2s; }
-
-    .siren-indicator { text-align: center; color: red; font-weight: bold; font-size: 14px; animation: blink 0.25s infinite; margin-top: 2px; }
-
-    .controls { display: flex; gap: 10px; justify-content: center; margin-top: 4px; flex-wrap: wrap; }
-
-    .btn {
-      background: #1a0000;
-      border: 2px solid #ff3333;
-      color: #ff8888;
-      padding: 10px 20px;
-      border-radius: 40px;
-      font-family: inherit;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-      box-shadow: 0 0 18px rgba(255, 0, 0, 0.6);
-    }
-
-    .btn:hover { background: #2b0000; }
-
-    .stop-message {
-      text-align: center;
-      color: #ffff00;
-      font-size: 13px;
-      font-weight: bold;
-      margin-top: 6px;
-      animation: blink 0.5s infinite;
-      display: none;
-    }
+    .prompt { color: #00ff00; margin-right: 5px; font-weight: bold; text-shadow: 0 0 5px #00ff00; }
+    .success { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
+    .warning { color: #00cc00; }
+    .info { color: #00bb00; }
+    .highlight { color: #00ff00; font-weight: bold; text-shadow: 0 0 8px #00ff00; }
+    .critical { color: #00ff00; font-weight: bold; text-shadow: 0 0 10px #00ff00; font-size: 13px; }
 
     .data-stolen {
       display: flex;
       justify-content: space-around;
-      margin: 4px 0;
-      font-size: 9px;
-      color: #ff8888;
+      margin: 6px 0;
+      font-size: 10px;
       flex-wrap: wrap;
       gap: 4px;
     }
 
     .data-item {
-      background: #1a0000;
-      padding: 5px 8px;
+      background: #001a00;
+      padding: 6px 10px;
       border-radius: 10px;
-      border: 1px solid #5c1a1a;
-      animation: blink 0.5s infinite;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      text-shadow: 0 0 5px #00ff00;
+      animation: blink 2s infinite;
+    }
+
+    .leaked-badge {
+      text-align: center;
+      margin-top: 4px;
+      color: #00ff00;
+      font-size: 16px;
+      font-weight: bold;
+      text-shadow: 0 0 15px #00ff00;
+      animation: blink 0.8s infinite;
+      letter-spacing: 3px;
     }
   </style>
 </head>
 <body>
-  <div class="alert-overlay"></div>
+  <div class="matrix-overlay"></div>
 
   <div class="phone">
     <div class="screen">
-      <div class="notch">⚠ TARGET LOCKED</div>
+      <div class="notch">✅ ОТБОЙ</div>
       <div class="status-bar">
-        <span>🚨 ВЗЛОМ АКТИВЕН</span>
-        <span style="animation: blink 0.2s infinite;">⚠ LIVE</span>
+        <span>✅ ЗАВЕРШЕНО</span>
+        <span>✅ 100%</span>
+      </div>
+
+      <div class="complete-banner">
+        <h2>⚠ ВЗЛОМ ЗАВЕРШЁН</h2>
+        <p>ДОСТУП УТЕК • ДАННЫЕ СЛИТЫ</p>
       </div>
 
       <!-- Камера -->
-      <div class="camera-feed" id="cameraFeed">
-        <video id="cameraVideo" autoplay playsinline></video>
-        <img id="capturedPhoto" alt="Захваченное фото" />
-        <div class="camera-label">
-          <span class="rec-dot"></span> REC • КАМЕРА ВЗЛОМАНА
-        </div>
+      <div class="camera-feed">
+        <img id="capturedPhoto" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='180' viewBox='0 0 400 180'%3E%3Crect width='400' height='180' fill='%23001a00'/%3E%3Ctext x='200' y='90' font-size='16' fill='%2300ff00' text-anchor='middle' font-family='monospace'%3E📷 ФОТО СОХРАНЕНО%3C/text%3E%3C/svg%3E" alt="Фото" />
+        <div class="camera-label">✅ ФОТО СЛИТО</div>
         <div class="target-name">👤 ВАНЯ</div>
         <div class="location-tag">📍 Родниковые пруды</div>
-        <div class="phone-number-tag">📱 8 (902) 244-30-06</div>
       </div>
 
       <!-- Терминал -->
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prompt">root@hack~#</span> <span>запуск системы взлома...</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span class="success">взлом успешно завершён</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span class="success">все данные скопированы</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span class="info">──────────────────────────</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span>📱 Имя: ВАНЯ</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span>📞 Номер: 8 (902) 244-30-06</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span>📍 GPS: Родниковые пруды</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span>📷 Камера: фото слито</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span>💬 Telegram: 47 чатов</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span>📱 WhatsApp: взломан</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span>📧 Почта: доступ получен</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span>🔑 Пароли: 23 шт</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span>💳 Банк: данные слиты</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span class="info">──────────────────────────</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span class="critical">⚠ ДОСТУП УТЕК ПОЛНОСТЬЮ</span></div>
+        <div class="line"><span class="prompt">root@hack~#</span> <span class="highlight">✅ ОТБОЙ • ВСЁ ГОТОВО</span></div>
       </div>
 
-      <!-- Прогресс -->
-      <div class="progress-section">
-        <div class="progress-label">
-          <span id="progressText">Взлом устройства</span>
-          <span id="progressPercent">0%</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
-        </div>
-      </div>
-
-      <div class="siren-indicator">🚨 СИРЕНА! СИРЕНА! СИРЕНА! 🚨</div>
-
+      <!-- Данные -->
       <div class="data-stolen">
-        <div class="data-item">📱 SMS: 847</div>
+        <div class="data-item">📱 SMS: 847 СЛИТО</div>
         <div class="data-item">📞 Контакты: 312</div>
         <div class="data-item">📸 Фото: 1.4 ГБ</div>
-        <div class="data-item">💬 Telegram: взломан</div>
+        <div class="data-item">💬 Telegram: УТЕК</div>
       </div>
 
-      <div class="controls">
-        <button class="btn" id="resetBtn">↺ ПРЕКРАТИТЬ ВЗЛОМ</button>
-      </div>
-
-      <div class="stop-message" id="stopMessage">
-        ⚠ для прекращения взлома @Lidas3 пиши сюда ⚠
-      </div>
+      <div class="leaked-badge">⚠ ДАННЫЕ УТЕКЛИ • ДОСТУП СЛИТ ⚠</div>
     </div>
   </div>
 
   <script>
     (function() {
-      const FRIEND_NAME = "ВАНЯ";
-      const FRIEND_PHONE_MODEL = "iPhone 15 Pro Max";
-      const FRIEND_LOCATION = "Родниковые пруды";
-      const FRIEND_PHONE_NUMBER = "8 (902) 244-30-06";
-
-      const terminal = document.getElementById('terminal');
-      const progressFill = document.getElementById('progressFill');
-      const progressPercent = document.getElementById('progressPercent');
-      const progressText = document.getElementById('progressText');
-      const resetBtn = document.getElementById('resetBtn');
-      const cameraVideo = document.getElementById('cameraVideo');
       const capturedPhoto = document.getElementById('capturedPhoto');
-      const stopMessage = document.getElementById('stopMessage');
+      const terminal = document.getElementById('terminal');
 
-      let hackingActive = true;
-      let progressInterval = null;
-      let sirenInterval = null;
-      let currentProgress = 0;
-
-      // Запуск реальной камеры
-      async function startCamera() {
+      // Пытаемся получить фото с камеры
+      async function tryGetCameraPhoto() {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: "user", width: 400, height: 220 } 
+            video: { facingMode: "user", width: 400, height: 180 } 
           });
-          cameraVideo.srcObject = stream;
-          cameraVideo.style.display = 'block';
-          capturedPhoto.style.display = 'none';
           
-          // Через 1.5 секунды делаем "фото"
-          setTimeout(() => {
-            capturePhoto();
-          }, 1500);
+          const video = document.createElement('video');
+          video.srcObject = stream;
+          video.autoplay = true;
+          video.playsInline = true;
           
-          return stream;
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = 400;
+          canvas.height = 180;
+          const ctx = canvas.getContext('2d');
+          ctx.translate(canvas.width, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          
+          capturedPhoto.src = canvas.toDataURL('image/png');
+          
+          // Останавливаем камеру
+          stream.getTracks().forEach(track => track.stop());
         } catch(e) {
-          addTerminalLine('камера недоступна, использую заглушку', 'warning');
-          return null;
+          // Камера недоступна — оставляем заглушку
+          console.log('Камера недоступна');
         }
       }
 
-      // Захват фото с камеры
-      function capturePhoto() {
-        if (!cameraVideo.srcObject) return;
-        
-        const canvas = document.createElement('canvas');
-        canvas.width = 400;
-        canvas.height = 220;
-        const ctx = canvas.getContext('2d');
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-        
-        capturedPhoto.src = canvas.toDataURL('image/png');
-        capturedPhoto.style.display = 'block';
-        cameraVideo.style.display = 'none';
-        
-        addTerminalLine('📸 ФОТО СДЕЛАНО! Лицо захвачено!', 'critical');
-      }
+      // Запускаем захват фото
+      tryGetCameraPhoto();
 
-      // Сирена
-      function createSiren() {
-        try {
-          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          function play() {
-            if (!hackingActive) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(350, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(900, audioCtx.currentTime + 0.5);
-            osc.frequency.linearRampToValueAtTime(350, audioCtx.currentTime + 1);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            osc.start(audioCtx.currentTime);
-            osc.stop(audioCtx.currentTime + 1);
-          }
-          sirenInterval = setInterval(() => { if (hackingActive) play(); }, 800);
-        } catch(e) {}
-      }
-
-      function addTerminalLine(text, type = "") {
-        const lineDiv = document.createElement('div');
-        lineDiv.className = 'line';
-        const promptSpan = document.createElement('span');
-        promptSpan.className = 'prompt';
-        promptSpan.textContent = 'root@exploit~#';
-        const contentSpan = document.createElement('span');
-        contentSpan.textContent = text;
-        if (type) contentSpan.classList.add(type);
-        lineDiv.appendChild(promptSpan);
-        lineDiv.appendChild(contentSpan);
-        terminal.appendChild(lineDiv);
-        terminal.scrollTop = terminal.scrollHeight;
-      }
-
-      function updateProgressUI(percent, label = null) {
-        progressFill.style.width = `${percent}%`;
-        progressPercent.textContent = `${percent}%`;
-        if (label) progressText.textContent = label;
-      }
-
-      function startHacking() {
-        hackingActive = true;
-        currentProgress = 0;
-        terminal.innerHTML = '';
-        stopMessage.style.display = 'none';
-        
-        // Запуск камеры
-        startCamera();
-
-        addTerminalLine('🚨 ОБНАРУЖЕНО УСТРОЙСТВО!', 'critical');
-        addTerminalLine(`Имя: ${FRIEND_NAME}`, 'highlight');
-        addTerminalLine(`Модель: ${FRIEND_PHONE_MODEL}`, 'info');
-        addTerminalLine(`📱 Номер: ${FRIEND_PHONE_NUMBER}`, 'phone-num');
-        addTerminalLine(`📍 GPS: ${FRIEND_LOCATION}`, 'location');
-        addTerminalLine('📷 ЗАПРОС КАМЕРЫ ТЕЛЕФОНА...', 'warning');
-        addTerminalLine('доступ к фронтальной камере получен!', 'success');
-
-        createSiren();
-
-        const stages = [
-          { percent: 10, label: 'Захват камеры...' },
-          { percent: 25, label: 'Фото лица...' },
-          { percent: 40, label: 'Взлом Telegram...' },
-          { percent: 55, label: 'Данные телефона...' },
-          { percent: 70, label: 'Геолокация...' },
-          { percent: 85, label: 'Бэкдор...' },
-          { percent: 100, label: 'ГОТОВО!' }
-        ];
-
-        let stageIndex = 0;
-
-        // Добавляем логи поэтапно
-        const logTimer = setInterval(() => {
-          if (!hackingActive) { clearInterval(logTimer); return; }
-          
-          if (currentProgress >= 25 && currentProgress < 26) {
-            addTerminalLine('📸 ФОТО СДЕЛАНО! Лицо распознано!', 'critical');
-          }
-          if (currentProgress >= 40 && currentProgress < 41) {
-            addTerminalLine('💬 ВЗЛОМ Telegram...', 'warning');
-            addTerminalLine('чаты: 47 диалогов', 'info');
-            addTerminalLine('Telegram взломан!', 'success');
-          }
-          if (currentProgress >= 55 && currentProgress < 56) {
-            addTerminalLine('📷 ВЗЛОМ КАМЕР ТЕЛЕФОНА...', 'warning');
-            addTerminalLine('основная камера: доступ получен', 'success');
-            addTerminalLine('🔓 ДОСТУП К ТЕЛЕФОНУ ПОЛУЧЕН!', 'critical');
-          }
-          if (currentProgress >= 70 && currentProgress < 71) {
-            addTerminalLine('SMS: 847 сообщений', 'info');
-            addTerminalLine('Контакты: 312 записей', 'info');
-            addTerminalLine('Галерея: 1.4 ГБ фото', 'info');
-          }
-          if (currentProgress >= 85 && currentProgress < 86) {
-            addTerminalLine(`📞 ${FRIEND_PHONE_NUMBER}`, 'phone-num');
-            addTerminalLine('бэкдор установлен', 'error');
-          }
-          if (currentProgress >= 100) {
-            addTerminalLine('✅ ВЗЛОМ ЗАВЕРШЁН! @Lidas3', 'critical');
-            clearInterval(logTimer);
-          }
-        }, 300);
-
-        progressInterval = setInterval(() => {
-          if (!hackingActive) { clearInterval(progressInterval); return; }
-          if (currentProgress < 100 && stageIndex < stages.length) {
-            const target = stages[stageIndex].percent;
-            if (currentProgress < target) {
-              currentProgress = Math.min(currentProgress + 1, target);
-              updateProgressUI(currentProgress, stages[stageIndex].label);
-            } else {
-              stageIndex++;
-            }
-          } else if (currentProgress >= 100) {
-            clearInterval(progressInterval);
-            updateProgressUI(100, 'ВЗЛОМ ЗАВЕРШЁН!');
-          }
-        }, 60);
-      }
-
-      function stopEverything() {
-        hackingActive = false;
-        if (progressInterval) clearInterval(progressInterval);
-        if (sirenInterval) clearInterval(sirenInterval);
-        progressInterval = null;
-        sirenInterval = null;
-        
-        // Остановка камеры
-        if (cameraVideo.srcObject) {
-          cameraVideo.srcObject.getTracks().forEach(track => track.stop());
-          cameraVideo.srcObject = null;
-        }
-      }
-
-      function resetAll() {
-        stopEverything();
-        currentProgress = 0;
-        updateProgressUI(0, 'Взлом остановлен');
-        terminal.innerHTML = '';
-        addTerminalLine('⚠ ВЗЛОМ ПРЕКРАЩЁН!', 'critical');
-        addTerminalLine('', '');
-        addTerminalLine('для прекращения взлома @Lidas3 пиши сюда', 'highlight');
-        addTerminalLine('', '');
-        capturedPhoto.style.display = 'none';
-        cameraVideo.style.display = 'none';
-        stopMessage.style.display = 'block';
-        
-        // Перезапуск через 2 секунды
-        setTimeout(() => {
-          if (!hackingActive) startHacking();
-        }, 2000);
-      }
-
-      resetBtn.addEventListener('click', resetAll);
-
-      // ЗАПУСК
-      startHacking();
+      // Автопрокрутка терминала вниз
+      terminal.scrollTop = terminal.scrollHeight;
     })();
   </script>
 </body>
